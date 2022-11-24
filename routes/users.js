@@ -8,18 +8,32 @@ const { checkBody } = require('../modules/checkBody');
 
 //user signup
 router.post('/signup', function(req, res) {
-  let { firstname, username, password, token } = req.body
+  let { firstname, username, password } = req.body
 
-  if(!firstname || !username || !password || !token) {
-    res.json({result: false, message: 'Missing or empty fields.'});
+  if(!firstname || !username || !password) {
+    res.json({ result: false, message: 'Missing or empty fields.' });
     return;
   }
 
   User.findOne({username})
-  .then(data => {
-    console.log(data)
-  })
-})
+  .then(user => {
+    const token = uid2(32);
+    const hash = bcrypt.hashSync(password, 10);
+    if(!user) {
+      const newUser = new User({
+        firstname,
+        username,
+        password: hash,
+        token,
+      });
+      newUser.save().then(newEntry => {
+        res.json({ result: true, user: newEntry })
+      });
+    } else {
+      res.json({ result: false, message: 'User already exists.'})
+    }
+  });
+});
 
 //user signin 
 router.post('/signin', function(req, res){
@@ -33,6 +47,7 @@ router.post('/signin', function(req, res){
     } else {
       res.json({ result: false, error: 'User not found or wrong password' });
     }
-  })
-})
+  });
+});
+
 module.exports = router;
