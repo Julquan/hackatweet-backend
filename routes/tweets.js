@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 const Tweet = require('../models/tweets')
 
-//create / store tweet to database and return all tweets available ordered by creation time
+//create / store tweet to database and return all tweets available
 router.post('/tweet', (req, res) => {
 
     //to be modified: firstname and username from user token '/tweet/:token'
