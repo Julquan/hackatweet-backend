@@ -58,17 +58,20 @@ router.get('/search/:hashtag', (req, res) => {
 }) 
 
 router.post('/delete', (req, res) => {
-    let {token, username, content} = req.body;
+    let {token, content} = req.body;
     Tweet.updateOne(
         {
-        username,
         content,
         token
         },
         { is_deleted: true }
-    ).then(deleted => 
-        
-        res.json({deleted}))
+    ).then(result => {
+        if(result.acknowledged) {
+            res.json({ result: result.acknowledged, message:'Deleted status set to true.' })
+        } else {
+            res.json({ result: false, message:'No message found.' })
+        }
+    })
 })
         
 module.exports = router;
