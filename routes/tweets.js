@@ -57,10 +57,8 @@ router.get('/search/:hashtag', (req, res) => {
     )    
 }) 
 
-router.delete('/delete', (req, res) => {
-
+router.post('/delete', (req, res) => {
     let {token, username, content} = req.body;
-
     Tweet.updateOne(
         {
         username,
@@ -68,7 +66,9 @@ router.delete('/delete', (req, res) => {
         token
         },
         { is_deleted: true }
-    ).then(deleted => res.json({deleted}))
+    ).then(deleted => 
+        
+        res.json({deleted}))
 })
         
 module.exports = router;
