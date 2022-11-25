@@ -6,7 +6,7 @@ const tweetSchema = mongoose.Schema({
     time: Date,
     content: String,
     hashtag: Array,
-    deleted: {type: Boolean, default: false},
+    is_deleted: {type: Boolean, default: false},
   });
 
   const Tweet = mongoose.model('tweets', tweetSchema);
