@@ -1,20 +1,21 @@
 var express = require('express');
 var router = express.Router();
 const Tweet = require('../models/tweets')
+const User = require('../models/users')
 
 //create / store tweet to database and return all tweets available
-router.post('/tweet', (req, res) => {
+router.post('/post', (req, res) => {
+    let { token, content } = req.body;
 
-    //to be modified: firstname and username from user token '/tweet/:token'
-
-    let { firstname, username, content } = req.body;
-
-    if(!content) {
-        res.json({result: false, message: 'No tweet submitted.'});
+    if (!content) {
+        res.json({ result: false, message: 'No tweet submitted.' });
         return;
     }
 
-    Tweet.find().then(data =>{
+    User.findOne({token})
+    .then(data => {
+        let { firstname, username } = data;
+
         const pattern = /#.\S*/gi;
         const newTweet = new Tweet({
             firstname,
@@ -25,21 +26,49 @@ router.post('/tweet', (req, res) => {
         });
 
         newTweet.save().then(() => {
-
             Tweet.find().then(tweets => {
                 res.json({
-                    result: true, 
-                    message: 'New tweet created.', 
+                    result: true,
+                    message: 'New tweet created.',
                     tweets,
                 });
             });
         });
-    });
+    })
 });
+
+//get all tweets
+router.get('/', (req, res) => {
+    Tweet.find().then(tweets => {
+        if(tweets.length > 0) {
+            res.json({result: true, tweets})
+        } else {
+            res.json({result: false, message: "No tweets created yet."})
+        }
+    })
+})
 
 //get tweets with an specific hashtag
-router.get('/hashtag', (req, res) => {
+router.get('/search/:hashtag', (req, res) => { 
+    const { hashtag } = req.params; 
+    Tweet.find({ hashtag: { $all: [`${hashtag}`]}})
+    .then( data => { 
+        res.json(data) }
+    )    
+}) 
 
-});
-
+router.post('/delete', (req, res) => {
+    let {token, username, content} = req.body;
+    Tweet.updateOne(
+        {
+        username,
+        content,
+        token
+        },
+        { is_deleted: true }
+    ).then(deleted => 
+        
+        res.json({deleted}))
+})
+        
 module.exports = router;
